@@ -11,7 +11,8 @@ class App extends Component {
     super(props);
     this.state = {
       testing: true,
-      cats: [],
+      images: [],
+      imageToShow: undefined,
       showContactPanel: false,
       showImageModal: false
     }
@@ -22,17 +23,21 @@ class App extends Component {
   }
 
   // clicking on an image should ensure the contact panel is closed
-  imageClicked() {
+  imageClicked(index) {
     if (this.state.showContactPanel) {
       this.toggleContactPanel();
     }
-    else{
-      this.setState({showImageModal: !this.state.showImageModal});
+    else {
+      debugger;
+      this.setState({
+        showImageModal: !this.state.showImageModal,
+        imageToShow: index
+      });
       console.log(this.state.showImageModal);
     }
   }
-  closePopupPictureBox(){
-    this.setState({showImageModal: false});
+  closePopupPictureBox() {
+    this.setState({ showImageModal: false });
   }
 
   componentWillMount() {
@@ -49,7 +54,7 @@ class App extends Component {
             return;
           }
           else {
-            that.setState({ cats: response.response.data["0"].images["0"].image });
+            that.setState({ images: response.response.data["0"].images["0"].image });
             return;
           }
         })
@@ -75,14 +80,15 @@ class App extends Component {
 
         <div id="main">
           {
-            this.state.cats.map((cat, index) => (
+            this.state.images.map((image, index) => (
               <ImageItem
                 key={index}
-                src={cat.url[0]}
-                source_url={cat.source_url[0]}
+                src={image.url[0]}
+                source_url={image.source_url[0]}
                 duration={index}
-                test={true}
-                onClick={this.imageClicked.bind(this)}
+                test={false}
+                onClick={this.imageClicked.bind(this, index)}
+                blur={this.state.showImageModal}
               />
             ))
           }
@@ -92,9 +98,11 @@ class App extends Component {
           close={this.toggleContactPanel.bind(this)}
         />
 
-            <PopupPicture
-            show={this.state.showImageModal}
-            close={this.closePopupPictureBox.bind(this)} />
+        <PopupPicture
+          show={this.state.showImageModal}
+          close={this.closePopupPictureBox.bind(this)}
+          imageToShow={this.state.imageToShow}
+          images={this.state.images} />
 
       </div>
     );

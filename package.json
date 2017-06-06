@@ -7,6 +7,8 @@
     "jquery": "^3.2.1",
     "react": "^15.5.4",
     "react-animations": "^0.1.0",
+    "react-blur": "^0.5.2",
+    "react-css-filter": "^1.0.3",
     "react-dom": "^15.5.4",
     "react-image": "^1.0.1",
     "react-motion": "^0.5.0",

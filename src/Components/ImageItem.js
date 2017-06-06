@@ -30,7 +30,8 @@ class ImageItem extends Component {
                     style={{
                         backgroundImage: `url(${imgSrc})`,
                         cursor: 'pointer',
-                        outline: `0px`
+                        outline: `0px`,
+                        filter: this.props.showImageModal? 'blur(.5)' : ''
                     }}>
                 </a>
                 <h2>{this.props.source_url}</h2>
