@@ -9,10 +9,10 @@ const styles = {
         cursor: 'pointer',
         //background: 'white',
         background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,1) 75%, rgba(0,0,0,1) 100%)',
-        zIndex: 20003,
+        //zIndex: 20003,
     },
     imageStyle: {
-        zIndex: 20004,
+        //zIndex: 20004,
         maxWidth: '90%',
         maxHeight: '90%'
     }
@@ -43,7 +43,7 @@ class ImageModal extends Component {
                 {({ opacity, top, left, bottom, right, imageVerticalScale }) =>
                     <div id='imageModal'
                         style={{
-                            zIndex: 21000,
+                            zIndex: 100,
                             position: 'fixed',
                             display: 'flex',
                             alignItems: 'center',
@@ -58,7 +58,7 @@ class ImageModal extends Component {
                             style={
                                 Object.assign({}, this.state.style,
                                     {
-                                        opacity: opacity,
+                                        filter: 'blur(5px)',
                                         top: '0px',
                                         right: '0px',
                                         bottom: '0px',

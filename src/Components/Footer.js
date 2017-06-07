@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
         overflowY: `auto`,
         position: `fixed`,
         width: `100%`,
-        zIndex: `10001`
+        //zIndex: `10001`
     },
 
     slideInUp: {
