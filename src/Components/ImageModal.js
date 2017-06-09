@@ -1,46 +1,105 @@
 import React, { Component } from 'react';
 import { Motion, spring } from 'react-motion';
-import Img from 'react-image'
-
-const styles = {
-    background: {
-        position: 'absolute',
-        filter: 'blur(5px)',
-        cursor: 'pointer',
-        //background: 'white',
-        background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,1) 75%, rgba(0,0,0,1) 100%)',
-        //zIndex: 20003,
-    },
-    imageStyle: {
-        //zIndex: 20004,
-        maxWidth: '90%',
-        maxHeight: '90%'
-    }
-};
+import Img from 'react-image';
+import Loader from 'react-loader';
+import MdChevronRight from 'react-icons/lib/md/chevron-right';
+import MdChevronLeft from 'react-icons/lib/md/chevron-left';
+import MdClose from 'react-icons/lib/md/close';
 
 class ImageModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            style: Object.assign({}, styles.background)
+            leftActive: false,
+            rightActive: false,
+            closeActive: false,
+            show: false,
+            imageToShow: undefined,
+            images: []
         }
     }
 
+    clickHandler(name) {
+        switch (name) {
+            case 'left':
+                this.setState({ imageToShow: (this.state.imageToShow - 1) % this.state.images.length });
+                break;
+            case 'right':
+                this.setState({ imageToShow: (this.state.imageToShow + 1) % this.state.images.length });
+                break;
+            case 'close':
+                this.close();
+                break;
+        };
+        console.log('change image to: ' + this.state.imageToShow);
+    }
+
+    handleMouseEnter(name) {
+        switch (name) {
+            case 'left':
+                this.setState({ leftActive: true });
+                break;
+            case 'right':
+                this.setState({ rightActive: true });
+                break;
+            case 'close':
+                this.setState({ closeActive: true });
+                break;
+        }
+    }
+    handleMouseLeave(name) {
+        switch (name) {
+            case 'left':
+                this.setState({ leftActive: false });
+                break;
+            case 'right':
+                this.setState({ rightActive: false });
+                break;
+            case 'close':
+                this.setState({ closeActive: false });
+                break;
+        }
+    }
+
+    handleBackgroundClick(proxy, event) {
+        /*if (event.target.getAttribute("id") === 'imageModal') {
+            this.close();
+        }*/
+    }
+
+    close() {
+        this.setState({ show: false });
+        this.props.closeCallback();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        debugger;
+        this.setState({
+            images: nextProps.images,
+            imageToShow: nextProps.imageToShow,
+            show: nextProps.show
+        })
+    }
 
     render() {
-        console.log("image #: " + this.props.imageToShow);
-        debugger;
+        console.log("image #: " + this.state.imageToShow);
         return (
             <Motion
                 style={{
-                    opacity: spring(this.props.show ? .35 : 0),
-                    top: spring(this.props.show ? 0 : 50),
-                    left: spring(this.props.show ? 0 : 50),
-                    bottom: spring(this.props.show ? 0 : 50),
-                    right: spring(this.props.show ? 0 : 50),
-                    imageVerticalScale: spring(this.props.show ? 1 : 0),
+                    top: spring(this.state.show ? 0 : 50),
+                    left: spring(this.state.show ? 0 : 50),
+                    bottom: spring(this.state.show ? 0 : 50),
+                    right: spring(this.state.show ? 0 : 50),
+                    imageVerticalScale: spring(this.state.show ? 1 : 0),
+                    captionOpacity: spring(this.state.show ? 1 : 0),
+                    captionScale: spring(this.state.show ? 1 : 0),
+                    leftOpacity: spring(this.state.leftActive ? 1 : .5),
+                    rightOpacity: spring(this.state.rightActive ? 1 : .5),
+                    closeOpacity: spring(this.state.closeActive ? 1 : .5),
+
                 }}>
-                {({ opacity, top, left, bottom, right, imageVerticalScale }) =>
+                {({ top, left, bottom, right, imageVerticalScale, captionOpacity,
+                    captionScale, leftOpacity, rightOpacity, closeOpacity }) =>
                     <div id='imageModal'
                         style={{
                             zIndex: 100,
@@ -53,34 +112,102 @@ class ImageModal extends Component {
                             bottom: bottom + '%',
                             left: left + '%',
                         }}
-                        onClick={this.props.close}>
-                        <div id='modalBackground'
-                            style={
-                                Object.assign({}, this.state.style,
-                                    {
-                                        filter: 'blur(5px)',
-                                        top: '0px',
-                                        right: '0px',
-                                        bottom: '0px',
-                                        left: '0px',
-                                    })
-                            }
-                            onClick={this.props.close}>
-
-                            <div
-                                className='closer'
-                            ></div>
-                        </div>
-                        
-                            <Img style={Object.assign({}, styles.imageStyle,
-                                {
-                                    transform: `scaleY(${imageVerticalScale})`
-                                })}
+                        onClick={this.handleBackgroundClick.bind(this)}>
+                        <div id='pictureContainer'
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transform: `scaleY(${imageVerticalScale})`,
+                                maxWidth: '75%',
+                                maxHeight: '75%',
+                                minWidth: '20%',
+                                minHeight: '20%',
+                                boxShadow: `0px 0px 5px 1px rgba(0,0,0,0.75)`,
+                                backgroundImage: `url(${this.state.imageToShow != undefined ?
+                                    this.state.images[this.state.imageToShow].url[0] :
+                                    `images/fulls/01.jpg`})`,
+                            }}>
+                            <div className="closer"
+                                style={{
+                                    position: 'absolute',
+                                    left: '0px',
+                                    top: '0px',
+                                    width: '40px',
+                                    height: '40px',
+                                }}></div>
+                            <Img
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    visibility: `hidden`
+                                }}
                                 src={
-                                    this.props.imageToShow != undefined ?
-                                        this.props.images[this.props.imageToShow].url[0] :
+                                    this.state.imageToShow != undefined ?
+                                        this.state.images[this.state.imageToShow].url[0] :
                                         null
-                                } />
+                                }
+                                loader={<Loader />}
+                            />
+                            <div id='controls'
+                                style={{
+                                    position: 'absolute',
+                                    top: '40%',
+                                    bottom: '40%',
+                                    left: '0px',
+                                    right: '0px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}
+                            >
+                                <MdChevronLeft size={64}
+                                    style={{
+                                        opacity: leftOpacity,
+                                        color: `white`
+                                    }}
+                                    onMouseEnter={this.handleMouseEnter.bind(this, 'left')}
+                                    onMouseLeave={this.handleMouseLeave.bind(this, 'left')}
+                                    onClick={this.clickHandler.bind(this, 'left')}
+                                />
+                                <MdChevronRight size={64}
+                                    style={{
+                                        opacity: rightOpacity,
+                                        color: `white`
+                                    }}
+                                    onMouseEnter={this.handleMouseEnter.bind(this, 'right')}
+                                    onMouseLeave={this.handleMouseLeave.bind(this, 'right')}
+                                    onClick={this.clickHandler.bind(this, 'right')} />
+                            </div>
+                            <MdClose size={48}
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    opacity: closeOpacity,
+                                    color: `white`
+                                }}
+                                onMouseEnter={this.handleMouseEnter.bind(this, 'close')}
+                                onMouseLeave={this.handleMouseLeave.bind(this, 'close')}
+                                onClick={this.clickHandler.bind(this, 'close')}
+                            />
+                            <div className='caption'
+                                style={{
+                                    color: 'white',
+                                    width: '100%',
+                                    position: 'absolute',
+                                    bottom: '0',
+                                    opacity: captionOpacity,
+                                    transform: `scale(${captionScale})`,
+                                    background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.64) 99%,rgba(0,0,0,0.65) 100%)`,
+                                    padding: '0px 5px 0px 5px'
+                                }}>
+                                <h2>Lorem Ipsum</h2>
+                                <p style={{
+                                    margin: '0em 0em .5em 0em'
+                                }}>Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..</p>
+                            </div>
+                        </div>
                         <div className='nav-previous' />
                     </div>
                 }

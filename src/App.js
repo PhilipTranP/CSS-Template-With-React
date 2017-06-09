@@ -3,7 +3,7 @@ import './assets/css/main.css';
 import ImageItem from './Components/ImageItem';
 import Footer from './Components/Footer';
 import { parseString } from 'xml2js';
-import PopupPicture from './Components/ImageModal';
+import ImageModal from './Components/ImageModal';
 import renderIf from 'render-if';
 
 class App extends Component {
@@ -12,7 +12,6 @@ class App extends Component {
     this.state = {
       testing: true,
       images: [],
-      imageToShow: undefined,
       showContactPanel: false,
       showImageModal: false
     }
@@ -22,13 +21,14 @@ class App extends Component {
     console.log(this.state.showContactPanel);
   }
 
+
+
   // clicking on an image should ensure the contact panel is closed
   imageClicked(index) {
     if (this.state.showContactPanel) {
       this.toggleContactPanel();
     }
     else {
-      debugger;
       this.setState({
         showImageModal: !this.state.showImageModal,
         imageToShow: index
@@ -36,7 +36,8 @@ class App extends Component {
       console.log(this.state.showImageModal);
     }
   }
-  closePopupPictureBox() {
+
+  closeImageModal() {
     this.setState({ showImageModal: false });
   }
 
@@ -54,7 +55,11 @@ class App extends Component {
             return;
           }
           else {
-            that.setState({ images: response.response.data["0"].images["0"].image });
+            that.setState({
+              images: response.response.data["0"].images["0"].image,
+              imageToShow: 1,
+              showImageModal: true
+            });
             return;
           }
         })
@@ -98,11 +103,11 @@ class App extends Component {
           close={this.toggleContactPanel.bind(this)}
         />
 
-        <PopupPicture
+        <ImageModal
           show={this.state.showImageModal}
-          close={this.closePopupPictureBox.bind(this)}
           imageToShow={this.state.imageToShow}
-          images={this.state.images} />
+          images={this.state.images}
+          closeCallback={this.closeImageModal.bind(this)} />
 
       </div>
     );

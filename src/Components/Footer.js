@@ -90,7 +90,7 @@ class Footer extends Component {
                 </div>
                 <div 
                 className='closer'
-                onClick={this.props.close}
+                onClick={this.state.close}
                 ></div>
             </footer>
         )
