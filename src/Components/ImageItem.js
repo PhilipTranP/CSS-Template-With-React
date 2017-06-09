@@ -39,7 +39,11 @@ class ImageItem extends Component {
                                 filter: `blur(${blur * 5}px)`
                             }}>
                         </a>
-                        <h2>{this.props.source_url}</h2>
+                        <h2
+                        style={{
+                            fontFamily: "'Roboto', sans-serif"
+                        }}>
+                        {this.props.source_url}</h2>
                     </article>
                 }
             </Motion>

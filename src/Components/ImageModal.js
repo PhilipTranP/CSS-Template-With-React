@@ -5,6 +5,7 @@ import Loader from 'react-loader';
 import MdChevronRight from 'react-icons/lib/md/chevron-right';
 import MdChevronLeft from 'react-icons/lib/md/chevron-left';
 import MdClose from 'react-icons/lib/md/close';
+import ReactResizeDetector from 'react-resize-detector';
 
 class ImageModal extends Component {
     constructor(props) {
@@ -16,23 +17,37 @@ class ImageModal extends Component {
             show: false,
             imageToShow: undefined,
             images: [],
-            showCaption: false
+            showCaption: false,
+            pictureShown: false
         }
     }
 
-    clickHandler(name) {
+    clickHandler(name, proxy, event){
+                proxy.stopPropagation();
+
+        debugger
         switch (name) {
             case 'left':
-                this.setState({ imageToShow: (this.state.imageToShow - 1) % this.state.images.length });
+                this.setState({ showPicture: false });
+                this.setState({ imageToShow: this.state.imageToShow === 0 ? this.state.images.length - 1 : (this.state.imageToShow - 1) % this.state.images.length });
                 break;
             case 'right':
+                this.setState({ showPicture: false });
                 this.setState({ imageToShow: (this.state.imageToShow + 1) % this.state.images.length });
                 break;
             case 'close':
                 this.close();
                 break;
+            default:
+                console.log('error');
+                break;
         };
         console.log('change image to: ' + this.state.imageToShow);
+    }
+    handleBackgroundClick(proxy, event) {
+        //if (event.target.getAttribute("id") === 'imageModal') {
+            this.close();
+        //}
     }
 
     handleMouseEnter(name) {
@@ -45,6 +60,9 @@ class ImageModal extends Component {
                 break;
             case 'close':
                 this.setState({ closeActive: true });
+                break;
+            default:
+                console.log('error');
                 break;
         }
     }
@@ -59,31 +77,48 @@ class ImageModal extends Component {
             case 'close':
                 this.setState({ closeActive: false });
                 break;
+            default:
+                console.log('error');
+                break;
         }
     }
 
-    handleBackgroundClick(proxy, event) {
-        /*if (event.target.getAttribute("id") === 'imageModal') {
-            this.close();
-        }*/
-    }
+    
 
     close() {
-        this.setState({ show: false });
+        this.setState({
+            show: false,
+            showCaption: false,
+            pictureShown: false
+        });
         this.props.closeCallback();
     }
 
     componentWillReceiveProps(nextProps) {
-        debugger;
         this.setState({
             images: nextProps.images,
             imageToShow: nextProps.imageToShow,
             show: nextProps.show
         })
     }
+    animationComplete(a, b, c) {
+        console.log('animation complete');
+        // debugger;
+        if ((this.state.show) && (!this.state.showCaption)) {
+            this.raf = requestAnimationFrame(() => this.setState({ showCaption: true }));
+        }
+        if ((this.state.show) && (!this.state.pictureShown)) {
+            this.setState({ pictureShown: true });
+        }
+    }
+    handleImageResize(width, height) {
+        if (this.state.pictureShown) {
+            console.log("resize: " + width + " : " + height);
+        }
+    }
 
     render() {
-        console.log("image #: " + this.state.imageToShow);
+        // console.log("image #: " + this.state.imageToShow);
         return (
             <Motion
                 style={{
@@ -99,7 +134,7 @@ class ImageModal extends Component {
                     closeOpacity: spring(this.state.closeActive ? 1 : .5),
 
                 }}
-                onRest={this.animationComplete.bind}>
+                onRest={this.animationComplete.bind(this)}>
                 {({ top, left, bottom, right, imageVerticalScale, captionOpacity,
                     captionScale, leftOpacity, rightOpacity, closeOpacity }) =>
                     <div id='imageModal'
@@ -123,13 +158,15 @@ class ImageModal extends Component {
                                 transform: `scaleY(${imageVerticalScale})`,
                                 maxWidth: '75%',
                                 maxHeight: '75%',
-                                minWidth: '20%',
-                                minHeight: '20%',
-                                boxShadow: `0px 0px 5px 1px rgba(0,0,0,0.75)`,
-                                backgroundImage: `url(${this.state.imageToShow != undefined ?
+                                minWidth: '33%',
+                                minHeight: '33%',
+                                boxShadow: `0px 0px 5px 1px rgba(0,0, 10, 7, .75) inset`,
+                                backgroundImage: `url(${this.state.imageToShow !== undefined ?
                                     this.state.images[this.state.imageToShow].url[0] :
                                     `images/fulls/01.jpg`})`,
                             }}>
+                            <ReactResizeDetector handleWidth handleHeight onResize={this.handleImageResize.bind(this)} />
+
                             <div className="closer"
                                 style={{
                                     position: 'absolute',
@@ -145,7 +182,7 @@ class ImageModal extends Component {
                                     visibility: `hidden`
                                 }}
                                 src={
-                                    this.state.imageToShow != undefined ?
+                                    this.state.imageToShow !== undefined ?
                                         this.state.images[this.state.imageToShow].url[0] :
                                         null
                                 }
@@ -160,7 +197,7 @@ class ImageModal extends Component {
                                     right: '0px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'space-between'
+                                    justifyContent: 'space-between',
                                 }}
                             >
                                 <MdChevronLeft size={64}
@@ -181,6 +218,7 @@ class ImageModal extends Component {
                                     onMouseLeave={this.handleMouseLeave.bind(this, 'right')}
                                     onClick={this.clickHandler.bind(this, 'right')} />
                             </div>
+
                             <MdClose size={48}
                                 style={{
                                     position: 'absolute',
@@ -204,10 +242,14 @@ class ImageModal extends Component {
                                     background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.64) 99%,rgba(0,0,0,0.65) 100%)`,
                                     padding: '0px 5px 0px 5px'
                                 }}>
-                                <h2>Lorem Ipsum</h2>
+                                <h2
+                                    style={{
+                                        fontFamily: "'Open Sans', sans-serif"
+                                    }}>Lorem Ipsum - Open Sans</h2>
                                 <p style={{
-                                    margin: '0em 0em .5em 0em'
-                                }}>Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..</p>
+                                    margin: '0em 0em .5em 0em',
+                                    fontFamily: "'Roboto', sans-serif"
+                                }}>Roboto: Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..</p>
                             </div>
                         </div>
                         <div className='nav-previous' />

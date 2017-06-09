@@ -4,7 +4,6 @@ import ImageItem from './Components/ImageItem';
 import Footer from './Components/Footer';
 import { parseString } from 'xml2js';
 import ImageModal from './Components/ImageModal';
-import renderIf from 'render-if';
 
 class App extends Component {
   constructor(props) {
