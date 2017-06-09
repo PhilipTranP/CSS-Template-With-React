@@ -15,7 +15,8 @@ class ImageModal extends Component {
             closeActive: false,
             show: false,
             imageToShow: undefined,
-            images: []
+            images: [],
+            showCaption: false
         }
     }
 
@@ -91,13 +92,14 @@ class ImageModal extends Component {
                     bottom: spring(this.state.show ? 0 : 50),
                     right: spring(this.state.show ? 0 : 50),
                     imageVerticalScale: spring(this.state.show ? 1 : 0),
-                    captionOpacity: spring(this.state.show ? 1 : 0),
-                    captionScale: spring(this.state.show ? 1 : 0),
+                    captionOpacity: spring(this.state.showCaption ? 1 : 0),
+                    captionScale: spring(this.state.showCaption ? 1 : 0),
                     leftOpacity: spring(this.state.leftActive ? 1 : .5),
                     rightOpacity: spring(this.state.rightActive ? 1 : .5),
                     closeOpacity: spring(this.state.closeActive ? 1 : .5),
 
-                }}>
+                }}
+                onRest={this.animationComplete.bind}>
                 {({ top, left, bottom, right, imageVerticalScale, captionOpacity,
                     captionScale, leftOpacity, rightOpacity, closeOpacity }) =>
                     <div id='imageModal'
