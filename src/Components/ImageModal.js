@@ -85,135 +85,126 @@ class ImageModal extends Component {
     render() {
         console.log("image #: " + this.state.imageToShow);
         return (
-            <Motion
-                style={{
-                    top: spring(this.state.show ? 0 : 50),
-                    left: spring(this.state.show ? 0 : 50),
-                    bottom: spring(this.state.show ? 0 : 50),
-                    right: spring(this.state.show ? 0 : 50),
-                    imageVerticalScale: spring(this.state.show ? 1 : 0),
-                    captionOpacity: spring(this.state.showCaption ? 1 : 0),
-                    captionScale: spring(this.state.showCaption ? 1 : 0),
-                    leftOpacity: spring(this.state.leftActive ? 1 : .5),
-                    rightOpacity: spring(this.state.rightActive ? 1 : .5),
-                    closeOpacity: spring(this.state.closeActive ? 1 : .5),
 
-                }}
-                onRest={this.animationComplete.bind}>
-                {({ top, left, bottom, right, imageVerticalScale, captionOpacity,
-                    captionScale, leftOpacity, rightOpacity, closeOpacity }) =>
-                    <div id='imageModal'
+            <VelocityComponent animation={{
+                top: spring(this.state.show ? 0 : 50),
+                left: spring(this.state.show ? 0 : 50),
+                bottom: spring(this.state.show ? 0 : 50),
+                right: spring(this.state.show ? 0 : 50),
+            }}
+                duration={500}>
+                <div id='imageModal'
+                    style={{
+                        zIndex: 100,
+                        position: 'fixed',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        top: top + '%',
+                        right: right + '%',
+                        bottom: bottom + '%',
+                        left: left + '%',
+                    }}
+                    onClick={this.handleBackgroundClick.bind(this)}>
+                    <div id='pictureContainer'
                         style={{
-                            zIndex: 100,
-                            position: 'fixed',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            top: top + '%',
-                            right: right + '%',
-                            bottom: bottom + '%',
-                            left: left + '%',
-                        }}
-                        onClick={this.handleBackgroundClick.bind(this)}>
-                        <div id='pictureContainer'
+                            transform: `scaleY(${imageVerticalScale})`,
+                            maxWidth: '75%',
+                            maxHeight: '75%',
+                            minWidth: '20%',
+                            minHeight: '20%',
+                            boxShadow: `0px 0px 5px 1px rgba(0,0,0,0.75)`,
+                            backgroundImage: `url(${this.state.imageToShow != undefined ?
+                                this.state.images[this.state.imageToShow].url[0] :
+                                `images/fulls/01.jpg`})`,
+                        }}>
+                        <div className="closer"
                             style={{
+                                position: 'absolute',
+                                left: '0px',
+                                top: '0px',
+                                width: '40px',
+                                height: '40px',
+                            }}></div>
+                        <Img
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                visibility: `hidden`
+                            }}
+                            src={
+                                this.state.imageToShow != undefined ?
+                                    this.state.images[this.state.imageToShow].url[0] :
+                                    null
+                            }
+                            loader={<Loader />}
+                        />
+                        <div id='controls'
+                            style={{
+                                position: 'absolute',
+                                top: '40%',
+                                bottom: '40%',
+                                left: '0px',
+                                right: '0px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center',
-                                transform: `scaleY(${imageVerticalScale})`,
-                                maxWidth: '75%',
-                                maxHeight: '75%',
-                                minWidth: '20%',
-                                minHeight: '20%',
-                                boxShadow: `0px 0px 5px 1px rgba(0,0,0,0.75)`,
-                                backgroundImage: `url(${this.state.imageToShow != undefined ?
-                                    this.state.images[this.state.imageToShow].url[0] :
-                                    `images/fulls/01.jpg`})`,
-                            }}>
-                            <div className="closer"
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <MdChevronLeft size={64}
                                 style={{
-                                    position: 'absolute',
-                                    left: '0px',
-                                    top: '0px',
-                                    width: '40px',
-                                    height: '40px',
-                                }}></div>
-                            <Img
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    visibility: `hidden`
-                                }}
-                                src={
-                                    this.state.imageToShow != undefined ?
-                                        this.state.images[this.state.imageToShow].url[0] :
-                                        null
-                                }
-                                loader={<Loader />}
-                            />
-                            <div id='controls'
-                                style={{
-                                    position: 'absolute',
-                                    top: '40%',
-                                    bottom: '40%',
-                                    left: '0px',
-                                    right: '0px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between'
-                                }}
-                            >
-                                <MdChevronLeft size={64}
-                                    style={{
-                                        opacity: leftOpacity,
-                                        color: `white`
-                                    }}
-                                    onMouseEnter={this.handleMouseEnter.bind(this, 'left')}
-                                    onMouseLeave={this.handleMouseLeave.bind(this, 'left')}
-                                    onClick={this.clickHandler.bind(this, 'left')}
-                                />
-                                <MdChevronRight size={64}
-                                    style={{
-                                        opacity: rightOpacity,
-                                        color: `white`
-                                    }}
-                                    onMouseEnter={this.handleMouseEnter.bind(this, 'right')}
-                                    onMouseLeave={this.handleMouseLeave.bind(this, 'right')}
-                                    onClick={this.clickHandler.bind(this, 'right')} />
-                            </div>
-                            <MdClose size={48}
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    right: 0,
-                                    opacity: closeOpacity,
+                                    opacity: leftOpacity,
                                     color: `white`
                                 }}
-                                onMouseEnter={this.handleMouseEnter.bind(this, 'close')}
-                                onMouseLeave={this.handleMouseLeave.bind(this, 'close')}
-                                onClick={this.clickHandler.bind(this, 'close')}
+                                onMouseEnter={this.handleMouseEnter.bind(this, 'left')}
+                                onMouseLeave={this.handleMouseLeave.bind(this, 'left')}
+                                onClick={this.clickHandler.bind(this, 'left')}
                             />
-                            <div className='caption'
+                            <MdChevronRight size={64}
                                 style={{
-                                    color: 'white',
-                                    width: '100%',
-                                    position: 'absolute',
-                                    bottom: '0',
-                                    opacity: captionOpacity,
-                                    transform: `scale(${captionScale})`,
-                                    background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.64) 99%,rgba(0,0,0,0.65) 100%)`,
-                                    padding: '0px 5px 0px 5px'
-                                }}>
-                                <h2>Lorem Ipsum</h2>
-                                <p style={{
-                                    margin: '0em 0em .5em 0em'
-                                }}>Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..</p>
-                            </div>
+                                    opacity: rightOpacity,
+                                    color: `white`
+                                }}
+                                onMouseEnter={this.handleMouseEnter.bind(this, 'right')}
+                                onMouseLeave={this.handleMouseLeave.bind(this, 'right')}
+                                onClick={this.clickHandler.bind(this, 'right')} />
                         </div>
-                        <div className='nav-previous' />
+                        <MdClose size={48}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                right: 0,
+                                opacity: closeOpacity,
+                                color: `white`
+                            }}
+                            onMouseEnter={this.handleMouseEnter.bind(this, 'close')}
+                            onMouseLeave={this.handleMouseLeave.bind(this, 'close')}
+                            onClick={this.clickHandler.bind(this, 'close')}
+                        />
+                        <div className='caption'
+                            style={{
+                                color: 'white',
+                                width: '100%',
+                                position: 'absolute',
+                                bottom: '0',
+                                opacity: captionOpacity,
+                                transform: `scale(${captionScale})`,
+                                background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.64) 99%,rgba(0,0,0,0.65) 100%)`,
+                                padding: '0px 5px 0px 5px'
+                            }}>
+                            <h2>Lorem Ipsum</h2>
+                            <p style={{
+                                margin: '0em 0em .5em 0em'
+                            }}>Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..</p>
+                        </div>
                     </div>
-                }
-            </Motion>
+                    <div className='nav-previous' />
+                </div>
+
+            </VelocityComponent>
         )
     }
 }
