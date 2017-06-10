@@ -5,7 +5,6 @@ import Loader from 'react-loader';
 import MdChevronRight from 'react-icons/lib/md/chevron-right';
 import MdChevronLeft from 'react-icons/lib/md/chevron-left';
 import MdClose from 'react-icons/lib/md/close';
-import ReactResizeDetector from 'react-resize-detector';
 
 class ImageModal extends Component {
     constructor(props) {
