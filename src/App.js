@@ -15,12 +15,14 @@ class App extends Component {
       showImageModal: false
     }
   }
+  
   toggleContactPanel() {
     this.setState({ showContactPanel: !this.state.showContactPanel });
-    console.log(this.state.showContactPanel);
   }
 
-
+  closeContactPanel() {
+    this.setState({ showContactPanel: false });
+  }
 
   // clicking on an image should ensure the contact panel is closed
   imageClicked(index) {
@@ -98,6 +100,7 @@ class App extends Component {
         <Footer
           show={this.state.showContactPanel}
           close={this.toggleContactPanel.bind(this)}
+          closeCallback={this.closeContactPanel.bind(this)}
         />
 
         <ImageModal
