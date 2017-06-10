@@ -16,24 +16,34 @@ class ImageModal extends Component {
             closeActive: false,
             show: false,
             imageToShow: undefined,
+            nextImageToShow: undefined,
             images: [],
             showCaption: false,
             pictureShown: false
         }
     }
 
-    clickHandler(name, proxy, event){
-                proxy.stopPropagation();
-
-        debugger
+    clickHandler(name, proxy, event) {
+        proxy.stopPropagation();
         switch (name) {
             case 'left':
                 this.setState({ showPicture: false });
-                this.setState({ imageToShow: this.state.imageToShow === 0 ? this.state.images.length - 1 : (this.state.imageToShow - 1) % this.state.images.length });
+                let nextImageToShowLeft = this.state.imageToShow === 0 ?
+                    this.state.images.length - 1 :
+                    (this.state.imageToShow - 1) % this.state.images.length
+                this.setState({
+                    nextImageToShow: nextImageToShowLeft
+                });
+                this.swapImages(this.state.imageToShow, nextImageToShowLeft);
                 break;
             case 'right':
                 this.setState({ showPicture: false });
-                this.setState({ imageToShow: (this.state.imageToShow + 1) % this.state.images.length });
+                let nextImageToShowRight = (this.state.imageToShow + 1) % this.state.images.length
+
+                this.setState({
+                    nextImageToShow: nextImageToShowRight
+                });
+                this.swapImages(this.state.imageToShow, nextImageToShowRight);
                 break;
             case 'close':
                 this.close();
@@ -42,12 +52,7 @@ class ImageModal extends Component {
                 console.log('error');
                 break;
         };
-        console.log('change image to: ' + this.state.imageToShow);
-    }
-    handleBackgroundClick(proxy, event) {
-        //if (event.target.getAttribute("id") === 'imageModal') {
-            this.close();
-        //}
+
     }
 
     handleMouseEnter(name) {
@@ -83,8 +88,6 @@ class ImageModal extends Component {
         }
     }
 
-    
-
     close() {
         this.setState({
             show: false,
@@ -98,27 +101,38 @@ class ImageModal extends Component {
         this.setState({
             images: nextProps.images,
             imageToShow: nextProps.imageToShow,
-            show: nextProps.show
-        })
+            nextImageToShow: undefined,
+            show: nextProps.show,
+            pictureShown: nextProps.show
+        });
+        debugger
     }
+
     animationComplete(a, b, c) {
         console.log('animation complete');
         // debugger;
         if ((this.state.show) && (!this.state.showCaption)) {
             this.raf = requestAnimationFrame(() => this.setState({ showCaption: true }));
         }
-        if ((this.state.show) && (!this.state.pictureShown)) {
-            this.setState({ pictureShown: true });
-        }
-    }
-    handleImageResize(width, height) {
-        if (this.state.pictureShown) {
-            console.log("resize: " + width + " : " + height);
+        else if ((this.state.show) && (!this.state.pictureShown)) {
+            this.raf = requestAnimationFrame(() => this.setState({
+                imageToShow: this.state.nextImageToShow,
+                pictureShown: true
+            }));
         }
     }
 
+
+    swapImages(currentPictureIndex, nextPictureIndex) {
+        console.log(`swapping images: ${currentPictureIndex} => ${nextPictureIndex}`);
+        debugger;
+        this.setState({ pictureShown: false });
+        //this.setState({ imageToShow: nextPictureIndex });
+    }
+
     render() {
-        // console.log("image #: " + this.state.imageToShow);
+
+
         return (
             <Motion
                 style={{
@@ -126,17 +140,22 @@ class ImageModal extends Component {
                     left: spring(this.state.show ? 0 : 50),
                     bottom: spring(this.state.show ? 0 : 50),
                     right: spring(this.state.show ? 0 : 50),
-                    imageVerticalScale: spring(this.state.show ? 1 : 0),
+                    imageVerticalScale: spring(this.state.pictureShown ? 1 : 0),
+                    imageHorizontalScale: spring(this.state.pictureShown ? 1 : 0),
+                    imageBlur: spring(this.state.pictureShown ? 0 : 25),
+                    imageGrayscale: spring(this.state.pictureShown ? 0 : 100),
+                    imageOpacity:spring(this.state.pictureShown ? 100 : 25),
+                    imageRotateY: spring(this.state.pictureShown ? 0 : 90),
                     captionOpacity: spring(this.state.showCaption ? 1 : 0),
                     captionScale: spring(this.state.showCaption ? 1 : 0),
                     leftOpacity: spring(this.state.leftActive ? 1 : .5),
                     rightOpacity: spring(this.state.rightActive ? 1 : .5),
                     closeOpacity: spring(this.state.closeActive ? 1 : .5),
-
                 }}
                 onRest={this.animationComplete.bind(this)}>
-                {({ top, left, bottom, right, imageVerticalScale, captionOpacity,
-                    captionScale, leftOpacity, rightOpacity, closeOpacity }) =>
+                {({ top, left, bottom, right, imageVerticalScale, imageHorizontalScale, imageRotateY, 
+                    imageBlur, imageGrayscale, imageOpacity,
+                    captionOpacity, captionScale, leftOpacity, rightOpacity, closeOpacity }) =>
                     <div id='imageModal'
                         style={{
                             zIndex: 100,
@@ -149,13 +168,13 @@ class ImageModal extends Component {
                             bottom: bottom + '%',
                             left: left + '%',
                         }}
-                        onClick={this.handleBackgroundClick.bind(this)}>
+                        onClick={this.close.bind(this)}>
                         <div id='pictureContainer'
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                transform: `scaleY(${imageVerticalScale})`,
+                                transform: `scale(${imageVerticalScale}, ${imageHorizontalScale})`,
                                 maxWidth: '75%',
                                 maxHeight: '75%',
                                 minWidth: '33%',
@@ -164,9 +183,9 @@ class ImageModal extends Component {
                                 backgroundImage: `url(${this.state.imageToShow !== undefined ?
                                     this.state.images[this.state.imageToShow].url[0] :
                                     `images/fulls/01.jpg`})`,
+                                backgroundSize: 'cover',
+                                filter: `blur(${imageBlur}px) opacity(${imageOpacity} grayscale(${imageGrayscale})`
                             }}>
-                            <ReactResizeDetector handleWidth handleHeight onResize={this.handleImageResize.bind(this)} />
-
                             <div className="closer"
                                 style={{
                                     position: 'absolute',
@@ -188,6 +207,26 @@ class ImageModal extends Component {
                                 }
                                 loader={<Loader />}
                             />
+                            <div className='caption'
+                                style={{
+                                    color: 'white',
+                                    width: '100%',
+                                    position: 'absolute',
+                                    bottom: '0',
+                                    opacity: captionOpacity,
+                                    transform: `scale(${captionScale})`,
+                                    background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.64) 99%,rgba(0,0,0,0.65) 100%)`,
+                                    padding: '0px 5px 0px 5px'
+                                }}>
+                                <h2
+                                    style={{
+                                        fontFamily: "'Open Sans', sans-serif"
+                                    }}>Lorem Ipsum - Open Sans</h2>
+                                <p style={{
+                                    margin: '0em 0em .5em 0em',
+                                    fontFamily: "'Roboto', sans-serif"
+                                }}>Roboto: Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..</p>
+                            </div>
                             <div id='controls'
                                 style={{
                                     position: 'absolute',
@@ -231,26 +270,7 @@ class ImageModal extends Component {
                                 onMouseLeave={this.handleMouseLeave.bind(this, 'close')}
                                 onClick={this.clickHandler.bind(this, 'close')}
                             />
-                            <div className='caption'
-                                style={{
-                                    color: 'white',
-                                    width: '100%',
-                                    position: 'absolute',
-                                    bottom: '0',
-                                    opacity: captionOpacity,
-                                    transform: `scale(${captionScale})`,
-                                    background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.64) 99%,rgba(0,0,0,0.65) 100%)`,
-                                    padding: '0px 5px 0px 5px'
-                                }}>
-                                <h2
-                                    style={{
-                                        fontFamily: "'Open Sans', sans-serif"
-                                    }}>Lorem Ipsum - Open Sans</h2>
-                                <p style={{
-                                    margin: '0em 0em .5em 0em',
-                                    fontFamily: "'Roboto', sans-serif"
-                                }}>Roboto: Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..</p>
-                            </div>
+
                         </div>
                         <div className='nav-previous' />
                     </div>

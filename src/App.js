@@ -56,8 +56,6 @@ class App extends Component {
           else {
             that.setState({
               images: response.response.data["0"].images["0"].image,
-              imageToShow: 1,
-              showImageModal: true
             });
             return;
           }
