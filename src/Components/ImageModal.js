@@ -142,10 +142,6 @@ class ImageModal extends Component {
                     right: spring(this.state.show ? 0 : 50),
                     imageVerticalScale: spring(this.state.pictureShown ? 1 : 0),
                     imageHorizontalScale: spring(this.state.pictureShown ? 1 : 0),
-                    imageBlur: spring(this.state.pictureShown ? 0 : 25),
-                    imageGrayscale: spring(this.state.pictureShown ? 0 : 100),
-                    imageOpacity:spring(this.state.pictureShown ? 100 : 25),
-                    imageRotateY: spring(this.state.pictureShown ? 0 : 90),
                     captionOpacity: spring(this.state.showCaption ? 1 : 0),
                     captionScale: spring(this.state.showCaption ? 1 : 0),
                     leftOpacity: spring(this.state.leftActive ? 1 : .5),
@@ -153,8 +149,7 @@ class ImageModal extends Component {
                     closeOpacity: spring(this.state.closeActive ? 1 : .5),
                 }}
                 onRest={this.animationComplete.bind(this)}>
-                {({ top, left, bottom, right, imageVerticalScale, imageHorizontalScale, imageRotateY, 
-                    imageBlur, imageGrayscale, imageOpacity,
+                {({ top, left, bottom, right, imageVerticalScale, imageHorizontalScale,  
                     captionOpacity, captionScale, leftOpacity, rightOpacity, closeOpacity }) =>
                     <div id='imageModal'
                         style={{
@@ -184,7 +179,6 @@ class ImageModal extends Component {
                                     this.state.images[this.state.imageToShow].url[0] :
                                     `images/fulls/01.jpg`})`,
                                 backgroundSize: 'cover',
-                                filter: `blur(${imageBlur}px) opacity(${imageOpacity} grayscale(${imageGrayscale})`
                             }}>
                             <div className="closer"
                                 style={{
